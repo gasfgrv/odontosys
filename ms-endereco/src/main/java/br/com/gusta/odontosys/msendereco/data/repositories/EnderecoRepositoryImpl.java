@@ -2,8 +2,6 @@ package br.com.gusta.odontosys.msendereco.data.repositories;
 
 import br.com.gusta.odontosys.msendereco.data.datasources.CepClient;
 import br.com.gusta.odontosys.msendereco.data.datasources.JpaEnderecoRepository;
-import br.com.gusta.odontosys.msendereco.data.mappers.EnderecoMapper;
-import br.com.gusta.odontosys.msendereco.data.mappers.EnderecoEntityMapper;
 import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
 import br.com.gusta.odontosys.msendereco.data.models.dto.ViacepResponse;
 import br.com.gusta.odontosys.msendereco.data.models.entity.EnderecoEntity;
