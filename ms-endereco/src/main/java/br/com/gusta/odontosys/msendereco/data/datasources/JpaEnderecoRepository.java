@@ -2,8 +2,8 @@ package br.com.gusta.odontosys.msendereco.data.datasources;
 
 import br.com.gusta.odontosys.msendereco.data.models.entity.EnderecoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-@Repository
+@Component
 public interface JpaEnderecoRepository extends JpaRepository<EnderecoEntity, String> {
 }
