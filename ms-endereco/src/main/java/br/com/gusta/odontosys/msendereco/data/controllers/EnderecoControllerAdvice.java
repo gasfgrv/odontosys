@@ -1,6 +1,7 @@
 package br.com.gusta.odontosys.msendereco.data.controllers;
 
 import br.com.gusta.odontosys.msendereco.core.exceptions.CepInvalidoException;
+import br.com.gusta.odontosys.msendereco.core.exceptions.MapperException;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.error.Problema;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,18 @@ public class EnderecoControllerAdvice extends ResponseEntityExceptionHandler {
         erro.setDataHora(LocalDateTime.now());
         erro.setMensagem(ex.getMessage());
 
-    return handleExceptionInternal(ex, erro, new HttpHeaders(), status, request);
+        return handleExceptionInternal(ex, erro, new HttpHeaders(), status, request);
+    }
+
+    @ExceptionHandler(MapperException.class)
+    public ResponseEntity<Object> handleMapperException(MapperException ex, WebRequest request) {
+        var status = HttpStatus.BAD_REQUEST;
+
+        var erro = new Problema();
+        erro.setStatus(status.value());
+        erro.setDataHora(LocalDateTime.now());
+        erro.setMensagem(ex.getMessage());
+
+        return handleExceptionInternal(ex, erro, new HttpHeaders(), status, request);
     }
 }

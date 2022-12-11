@@ -1,8 +1,9 @@
 package br.com.gusta.odontosys.msendereco.data.controllers;
 
 import br.com.gusta.odontosys.msendereco.core.exceptions.CepInvalidoException;
-import br.com.gusta.odontosys.msendereco.data.mappers.EnderecoResponseMapper;
+import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.EnderecoResponse;
+import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.usecases.BuscarEndereco;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EnderecoController {
 
     private final BuscarEndereco buscarEndereco;
-    private final EnderecoResponseMapper enderecoResponseMapper;
+    private final GenericMapper<Endereco, EnderecoResponse> enderecoResponseMapper;
 
     @GetMapping("/buscar")
     public ResponseEntity<EnderecoResponse> buscarEndereco(@RequestParam(required = false) String cep) {
