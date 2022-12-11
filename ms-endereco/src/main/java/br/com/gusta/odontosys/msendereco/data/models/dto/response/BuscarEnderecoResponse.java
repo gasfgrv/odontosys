@@ -1,6 +1,5 @@
 package br.com.gusta.odontosys.msendereco.data.models.dto.response;
 
-import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +9,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class EnderecoResponse {
-    private Endereco endereco;
+public class BuscarEnderecoResponse {
+    private String cep;
+    private String logradouro;
+    private String complemento;
+    private String bairro;
+    private String cidade;
+    private String uf;
 }
+

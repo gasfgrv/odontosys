@@ -1,5 +1,6 @@
 package br.com.gusta.odontosys.msendereco.data.repositories;
 
+import br.com.gusta.odontosys.msendereco.core.exceptions.EnderecoNotFoundException;
 import br.com.gusta.odontosys.msendereco.data.datasources.CepClient;
 import br.com.gusta.odontosys.msendereco.data.datasources.JpaEnderecoRepository;
 import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
@@ -38,9 +39,10 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     }
 
     @Override
-    public Endereco consultarEndereco(String cep) {
-        repository.findById(cep);
-        return null;
+    public Endereco consultarEndereco(String cep, int numero) {
+        var enderecoEntity = repository.consultarEndereco(cep, numero);
+        return enderecoEntity.map(enderecoMapper::map)
+                .orElseThrow(() -> new EnderecoNotFoundException("Endereço não encontrado"));
     }
 
     @Override
