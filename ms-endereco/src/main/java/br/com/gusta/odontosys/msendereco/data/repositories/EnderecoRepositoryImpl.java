@@ -11,6 +11,8 @@ import br.com.gusta.odontosys.msendereco.domain.repositories.EnderecoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
@@ -25,6 +27,7 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     private final GenericMapper<ViacepResponse, Endereco> viacepResponseEnderecoMapper;
 
     @Override
+    @CacheEvict(value="enderecoDatabase", allEntries=true)
     public Endereco salvarEndereco(Endereco endereco) {
         var entity = enderecoEnderecoEntityMapper.map(endereco);
         var enderecoSalvo = repository.save(entity);
@@ -32,6 +35,7 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     }
 
     @Override
+    @Cacheable("enderecoWebService")
     public Endereco buscarEndereco(String cep) {
         log.info("Buscando em: https://viacep.com.br/ws/{}/json", cep);
         var enderecoWs = cepClient.buscarEnderecoPorCep(cep);
@@ -39,6 +43,7 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     }
 
     @Override
+    @Cacheable("enderecoDatabase")
     public Endereco consultarEndereco(String cep, int numero) {
         var enderecoEntity = repository.consultarEndereco(cep, numero);
         return enderecoEntity.map(enderecoEntityEnderecoMapper::map)
@@ -46,6 +51,7 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     }
 
     @Override
+    @CacheEvict(value="enderecoDatabase", allEntries=true)
     public void deletarEndereco(String cep) {
         repository.deleteById(cep);
     }
