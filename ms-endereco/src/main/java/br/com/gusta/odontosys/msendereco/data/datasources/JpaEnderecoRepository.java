@@ -11,7 +11,7 @@ import java.util.Optional;
 @Component
 public interface JpaEnderecoRepository extends JpaRepository<EnderecoEntity, String> {
 
-    @Query("SELECT e FROM Endereco e WHERE e.cep = :cep and e.numero = :numero")
+    @Query("SELECT e FROM EnderecoEntity e WHERE e.cep = :cep and e.numero = :numero")
     Optional<EnderecoEntity> consultarEndereco(@Param("cep") String cep, @Param("numero") int numero);
 
 }
