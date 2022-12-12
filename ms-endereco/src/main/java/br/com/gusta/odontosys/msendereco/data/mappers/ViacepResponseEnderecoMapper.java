@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ViacepResponseMapper extends GenericMapper<ViacepResponse, Endereco> {
+public class ViacepResponseEnderecoMapper extends GenericMapper<ViacepResponse, Endereco> {
 
     private final ModelMapper mapper;
 
     @Autowired
-    public ViacepResponseMapper(ModelMapper mapper) {
+    public ViacepResponseEnderecoMapper(ModelMapper mapper) {
         this.mapper = mapper;
         mapper.createTypeMap(ViacepResponse.class, Endereco.class)
                 .addMapping(ViacepResponse::getLocalidade, Endereco::setCidade);

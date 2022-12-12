@@ -1,6 +1,6 @@
 package br.com.gusta.odontosys.msendereco.data.mappers;
 
-import br.com.gusta.odontosys.msendereco.data.models.dto.response.BuscarEnderecoResponse;
+import br.com.gusta.odontosys.msendereco.data.models.entity.EnderecoEntity;
 import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class BuscarEnderecoResponseMapper extends GenericMapper<Endereco, BuscarEnderecoResponse> {
+public class EnderecoEnderecoEntityMapper extends GenericMapper<Endereco, EnderecoEntity> {
 
     private final ModelMapper mapper;
 
     @Override
-    protected BuscarEnderecoResponse convert(Endereco endereco) {
-        return mapper.map(endereco, BuscarEnderecoResponse.class);
+    protected EnderecoEntity convert(Endereco endereco) {
+        return mapper.map(endereco, EnderecoEntity.class);
     }
 
 }

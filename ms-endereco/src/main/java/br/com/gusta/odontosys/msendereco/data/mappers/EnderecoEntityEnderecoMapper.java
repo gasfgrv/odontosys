@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class EnderecoEntityMapper extends GenericMapper<Endereco, EnderecoEntity> {
+public class EnderecoEntityEnderecoMapper extends GenericMapper<EnderecoEntity, Endereco> {
 
     private final ModelMapper mapper;
 
     @Override
-    protected EnderecoEntity convert(Endereco endereco) {
-        return mapper.map(endereco, EnderecoEntity.class);
+    protected Endereco convert(EnderecoEntity enderecoEntity) {
+        return mapper.map(enderecoEntity, Endereco.class);
     }
 
 }

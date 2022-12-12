@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EnderecoResponseMapper extends GenericMapper<Endereco, EnderecoResponse> {
+public class EnderecoEnderecoResponseMapper extends GenericMapper<Endereco, EnderecoResponse> {
 
     public static final SourceGetter<Endereco> GET_CEP = Endereco::getCep;
     public static final SourceGetter<Endereco> GET_LOGRADOURO = Endereco::getLogradouro;
@@ -35,7 +35,7 @@ public class EnderecoResponseMapper extends GenericMapper<Endereco, EnderecoResp
     private final ModelMapper mapper;
 
     @Autowired
-    public EnderecoResponseMapper(ModelMapper mapper) {
+    public EnderecoEnderecoResponseMapper(ModelMapper mapper) {
         this.mapper = mapper;
         mapper.createTypeMap(Endereco.class, EnderecoResponse.class)
                 .addMapping(GET_CEP, SET_CEP)
