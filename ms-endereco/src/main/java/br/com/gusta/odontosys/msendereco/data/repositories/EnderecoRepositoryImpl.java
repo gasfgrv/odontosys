@@ -20,28 +20,28 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
 
     private final JpaEnderecoRepository repository;
     private final CepClient cepClient;
-    private final GenericMapper<EnderecoEntity, Endereco> enderecoMapper;
-    private final GenericMapper<Endereco, EnderecoEntity> enderecoEntityMapper;
-    private final GenericMapper<ViacepResponse, Endereco> viacepResponseMapper;
+    private final GenericMapper<EnderecoEntity, Endereco> enderecoEntityEnderecoMapper;
+    private final GenericMapper<Endereco, EnderecoEntity> enderecoEnderecoEntityMapper;
+    private final GenericMapper<ViacepResponse, Endereco> viacepResponseEnderecoMapper;
 
     @Override
     public Endereco salvarEndereco(Endereco endereco) {
-        var entity = enderecoEntityMapper.map(endereco);
+        var entity = enderecoEnderecoEntityMapper.map(endereco);
         var enderecoSalvo = repository.save(entity);
-        return enderecoMapper.map(enderecoSalvo);
+        return enderecoEntityEnderecoMapper.map(enderecoSalvo);
     }
 
     @Override
     public Endereco buscarEndereco(String cep) {
         log.info("Buscando em: https://viacep.com.br/ws/{}/json", cep);
         var enderecoWs = cepClient.buscarEnderecoPorCep(cep);
-        return viacepResponseMapper.map(enderecoWs);
+        return viacepResponseEnderecoMapper.map(enderecoWs);
     }
 
     @Override
     public Endereco consultarEndereco(String cep, int numero) {
         var enderecoEntity = repository.consultarEndereco(cep, numero);
-        return enderecoEntity.map(enderecoMapper::map)
+        return enderecoEntity.map(enderecoEntityEnderecoMapper::map)
                 .orElseThrow(() -> new EnderecoNotFoundException("Endereço não encontrado"));
     }
 

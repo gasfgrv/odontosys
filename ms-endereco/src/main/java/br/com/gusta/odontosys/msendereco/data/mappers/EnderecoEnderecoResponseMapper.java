@@ -22,7 +22,7 @@ public class EnderecoEnderecoResponseMapper extends GenericMapper<Endereco, Ende
             enderecoResponse.getEndereco().setCep(cep);
     public static final DestinationSetter<EnderecoResponse, String> SET_LOGRADOURO = (enderecoResponse, logradouro) ->
             enderecoResponse.getEndereco().setLogradouro(logradouro);
-    public static final DestinationSetter<EnderecoResponse, String> SET_NUMERO = (enderecoResponse, numero) ->
+    public static final DestinationSetter<EnderecoResponse, Integer> SET_NUMERO = (enderecoResponse, numero) ->
             enderecoResponse.getEndereco().setNumero(numero);
     public static final DestinationSetter<EnderecoResponse, String> SET_COMPLEMENTO = (enderecoResponse, complemento) ->
             enderecoResponse.getEndereco().setComplemento(complemento);
