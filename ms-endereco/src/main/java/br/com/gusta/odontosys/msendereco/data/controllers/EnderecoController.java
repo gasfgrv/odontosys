@@ -8,12 +8,14 @@ import br.com.gusta.odontosys.msendereco.data.models.dto.response.EnderecoRespon
 import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.usecases.BuscarEndereco;
 import br.com.gusta.odontosys.msendereco.domain.usecases.ConsultarEndereco;
+import br.com.gusta.odontosys.msendereco.domain.usecases.DeletarEnderecoExistente;
 import br.com.gusta.odontosys.msendereco.domain.usecases.SalvarNovoEndereco;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +37,7 @@ public class EnderecoController {
     private final BuscarEndereco buscarEndereco;
     private final ConsultarEndereco consultarEndereco;
     private final SalvarNovoEndereco salvarNovoEndereco;
+    private final DeletarEnderecoExistente deletarEnderecoExistente;
     private final GenericMapper<Endereco, BuscarEnderecoResponse> enderecoBuscarEnderecoResponseMapper;
     private final GenericMapper<Endereco, EnderecoResponse> enderecoEnderecoResponseMapper;
     private final GenericMapper<NovoEnderecoForm, Endereco> novoEnderecoFormEnderecoMapper;
@@ -88,5 +91,20 @@ public class EnderecoController {
                 enderecoSalvo.getNumero()));
 
         return ResponseEntity.created(uri).body(enderecoResponse);
+    }
+
+    @DeleteMapping
+    @Transactional
+    public ResponseEntity<Void> deletarEnderecoExistente(@RequestParam(required = false) String cep) {
+        if (cep == null) {
+            log.error("CEP não passado para a busca");
+            throw new CepInvalidoException("CEP não passado para a busca");
+        }
+        
+        deletarEnderecoExistente.deletarEndereco(cep);
+        
+        log.info("Endereço deletado com sucesso");
+    
+        return ResponseEntity.noContent().build();
     }
 }
