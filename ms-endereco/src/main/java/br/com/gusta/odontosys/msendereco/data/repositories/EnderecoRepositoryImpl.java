@@ -1,6 +1,7 @@
 package br.com.gusta.odontosys.msendereco.data.repositories;
 
 import br.com.gusta.odontosys.msendereco.core.exceptions.EnderecoNotFoundException;
+import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
 import br.com.gusta.odontosys.msendereco.data.datasources.CepClient;
 import br.com.gusta.odontosys.msendereco.data.datasources.JpaEnderecoRepository;
 import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EnderecoRepositoryImpl implements EnderecoRepository {
 
+    private final MessageSource messageSource;
     private final JpaEnderecoRepository repository;
     private final CepClient cepClient;
     private final GenericMapper<EnderecoEntity, Endereco> enderecoEntityEnderecoMapper;
@@ -28,21 +31,18 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     private final GenericMapper<ViacepResponse, Endereco> viacepResponseEnderecoMapper;
 
     @Override
-    @CacheEvict(value="enderecoDatabase", allEntries=true)
+    @CacheEvict(value = "enderecoDatabase", allEntries = true)
     public Endereco salvarEndereco(Endereco endereco) {
         var entity = enderecoEnderecoEntityMapper.map(endereco);
         var enderecoSalvo = repository.save(entity);
-
         return enderecoEntityEnderecoMapper.map(enderecoSalvo);
     }
 
     @Override
     @Cacheable("enderecoWebService")
     public Endereco buscarEndereco(String cep) {
-        log.info("Buscando em: https://viacep.com.br/ws/{}/json", cep);
-
+        log.info(MensagemUtils.getMensagem(messageSource, "buscando.web.service", cep));
         var enderecoWs = cepClient.buscarEnderecoPorCep(cep);
-
         return viacepResponseEnderecoMapper.map(enderecoWs);
     }
 
@@ -52,20 +52,18 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
         var enderecoId = new EnderecoId();
         enderecoId.setCep(cep);
         enderecoId.setNumero(numero);
-
         var enderecoEntity = repository.findById(enderecoId);
-
         return enderecoEntity.map(enderecoEntityEnderecoMapper::map)
-                .orElseThrow(() -> new EnderecoNotFoundException("Endereço não encontrado"));
+                .orElseThrow(() -> new EnderecoNotFoundException(
+                        MensagemUtils.getMensagem(messageSource, "endereco.nao.encontrado")));
     }
 
     @Override
-    @CacheEvict(value="enderecoDatabase", allEntries=true)
+    @CacheEvict(value = "enderecoDatabase", allEntries = true)
     public void deletarEndereco(String cep, int numero) {
         var enderecoId = new EnderecoId();
         enderecoId.setCep(cep);
         enderecoId.setNumero(numero);
-
         repository.deleteById(enderecoId);
     }
 }
