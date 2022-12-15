@@ -6,5 +6,5 @@ public interface EnderecoRepository {
     Endereco salvarEndereco(Endereco endereco);
     Endereco buscarEndereco(String cep);
     Endereco consultarEndereco(String cep, int numero);
-    void deletarEndereco(String cep);
+    void deletarEndereco(String cep, int numero);
 }
