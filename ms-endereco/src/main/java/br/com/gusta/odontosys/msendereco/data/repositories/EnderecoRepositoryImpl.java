@@ -6,6 +6,7 @@ import br.com.gusta.odontosys.msendereco.data.datasources.JpaEnderecoRepository;
 import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
 import br.com.gusta.odontosys.msendereco.data.models.dto.ViacepResponse;
 import br.com.gusta.odontosys.msendereco.data.models.entity.EnderecoEntity;
+import br.com.gusta.odontosys.msendereco.data.models.entity.EnderecoId;
 import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.repositories.EnderecoRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     public Endereco salvarEndereco(Endereco endereco) {
         var entity = enderecoEnderecoEntityMapper.map(endereco);
         var enderecoSalvo = repository.save(entity);
+
         return enderecoEntityEnderecoMapper.map(enderecoSalvo);
     }
 
@@ -38,21 +40,32 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     @Cacheable("enderecoWebService")
     public Endereco buscarEndereco(String cep) {
         log.info("Buscando em: https://viacep.com.br/ws/{}/json", cep);
+
         var enderecoWs = cepClient.buscarEnderecoPorCep(cep);
+
         return viacepResponseEnderecoMapper.map(enderecoWs);
     }
 
     @Override
     @Cacheable("enderecoDatabase")
     public Endereco consultarEndereco(String cep, int numero) {
-        var enderecoEntity = repository.consultarEndereco(cep, numero);
+        var enderecoId = new EnderecoId();
+        enderecoId.setCep(cep);
+        enderecoId.setNumero(numero);
+
+        var enderecoEntity = repository.findById(enderecoId);
+
         return enderecoEntity.map(enderecoEntityEnderecoMapper::map)
                 .orElseThrow(() -> new EnderecoNotFoundException("Endereço não encontrado"));
     }
 
     @Override
     @CacheEvict(value="enderecoDatabase", allEntries=true)
-    public void deletarEndereco(String cep) {
-        repository.deleteById(cep);
+    public void deletarEndereco(String cep, int numero) {
+        var enderecoId = new EnderecoId();
+        enderecoId.setCep(cep);
+        enderecoId.setNumero(numero);
+
+        repository.deleteById(enderecoId);
     }
 }
