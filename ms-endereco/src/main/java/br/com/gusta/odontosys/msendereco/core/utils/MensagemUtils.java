@@ -5,6 +5,7 @@ import org.springframework.context.MessageSource;
 
 import java.util.Locale;
 import java.util.Objects;
+import org.springframework.validation.ObjectError;
 
 @UtilityClass
 public class MensagemUtils {
@@ -13,4 +14,7 @@ public class MensagemUtils {
         return messageSource.getMessage(codigo, argumentos, Locale.getDefault());
     }
 
+    public static String getMensagem(MessageSource messageSource, ObjectError erro) {
+        return messageSource.getMessage(erro, Locale.getDefault());
+    }
 }
