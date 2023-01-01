@@ -1,11 +1,10 @@
 package br.com.gusta.odontosys.msendereco.data.models.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "endereco")
@@ -13,7 +12,7 @@ import javax.persistence.Table;
 @Setter
 public class EnderecoEntity {
     @EmbeddedId
-    private EnderecoId id;
+    private EnderecoId enderecoId;
     private String logradouro;
     private String complemento;
     private String bairro;
