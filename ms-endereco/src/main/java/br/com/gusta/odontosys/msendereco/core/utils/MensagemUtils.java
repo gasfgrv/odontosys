@@ -1,10 +1,8 @@
 package br.com.gusta.odontosys.msendereco.core.utils;
 
+import java.util.Locale;
 import lombok.experimental.UtilityClass;
 import org.springframework.context.MessageSource;
-
-import java.util.Locale;
-import java.util.Objects;
 import org.springframework.validation.ObjectError;
 
 @UtilityClass
