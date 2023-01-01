@@ -3,11 +3,21 @@ package br.com.gusta.odontosys.msendereco.data.mappers;
 import br.com.gusta.odontosys.msendereco.data.models.entity.EnderecoEntity;
 import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.spi.DestinationSetter;
+import org.modelmapper.spi.SourceGetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EnderecoEntityEnderecoMapper extends GenericMapper<EnderecoEntity, Endereco> {
+
+    public static final SourceGetter<Endereco> GET_CEP = Endereco::getCep;
+
+    public static final SourceGetter<Endereco> GET_NUMERO = Endereco::getNumero;
+
+    public static final DestinationSetter<EnderecoEntity, String> SET_CEP = (entity, cep) -> entity.getEnderecoId().setCep(cep);
+
+    public static final DestinationSetter<EnderecoEntity, Integer> SET_NUMERO = (entity, numero) -> entity.getEnderecoId().setNumero(numero);
 
     private final ModelMapper mapper;
 
@@ -15,8 +25,8 @@ public class EnderecoEntityEnderecoMapper extends GenericMapper<EnderecoEntity, 
     public EnderecoEntityEnderecoMapper(ModelMapper mapper) {
         this.mapper = mapper;
         mapper.createTypeMap(Endereco.class, EnderecoEntity.class)
-                .<String>addMapping(Endereco::getCep, (entity, cep) -> entity.getId().setCep(cep))
-                .<Integer>addMapping(Endereco::getNumero, (entity, numero) -> entity.getId().setNumero(numero));
+                .addMapping(GET_CEP, SET_CEP)
+                .addMapping(GET_NUMERO, SET_NUMERO);
     }
 
     @Override
