@@ -1,6 +1,5 @@
 package br.com.gusta.odontosys.msendereco.data.repositories;
 
-import br.com.gusta.odontosys.msendereco.core.exceptions.EnderecoNotFoundException;
 import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
 import br.com.gusta.odontosys.msendereco.data.datasources.CepClient;
 import br.com.gusta.odontosys.msendereco.data.datasources.JpaEnderecoRepository;
@@ -42,7 +41,9 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     @Cacheable("enderecoWebService")
     public Endereco buscarEndereco(String cep) {
         log.info(MensagemUtils.getMensagem(messageSource, "buscando.web.service", cep));
+
         var enderecoWs = cepClient.buscarEnderecoPorCep(cep);
+
         return viacepResponseEnderecoMapper.map(enderecoWs);
     }
 
@@ -52,10 +53,10 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
         var enderecoId = new EnderecoId();
         enderecoId.setCep(cep);
         enderecoId.setNumero(numero);
+
         var enderecoEntity = repository.findById(enderecoId);
-        return enderecoEntity.map(enderecoEntityEnderecoMapper::map)
-                .orElseThrow(() -> new EnderecoNotFoundException(
-                        MensagemUtils.getMensagem(messageSource, "endereco.nao.encontrado")));
+
+        return enderecoEntity.map(enderecoEntityEnderecoMapper::map).orElse(null);
     }
 
     @Override
