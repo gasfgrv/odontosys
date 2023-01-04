@@ -1,0 +1,19 @@
+version: "3.7"
+services:
+  mariadb:
+    image: mariadb:10.7
+    container_name: endereco-db
+    restart: always
+    networks:
+      - endereco-db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_DATABASE: ms-endereco
+
+networks:
+  endereco-db:
+    driver: bridge
