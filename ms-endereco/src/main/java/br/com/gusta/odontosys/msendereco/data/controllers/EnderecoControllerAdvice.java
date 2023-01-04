@@ -2,7 +2,6 @@ package br.com.gusta.odontosys.msendereco.data.controllers;
 
 import br.com.gusta.odontosys.msendereco.core.exceptions.EnderecoNotFoundException;
 import br.com.gusta.odontosys.msendereco.core.exceptions.MapperException;
-import br.com.gusta.odontosys.msendereco.core.exceptions.ParametroInvalidoException;
 import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.error.Campo;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.error.Problema;
@@ -15,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -25,18 +25,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class EnderecoControllerAdvice extends ResponseEntityExceptionHandler {
 
     private final MessageSource messageSource;
-
-    @ExceptionHandler(ParametroInvalidoException.class)
-    public ResponseEntity<Object> handleCepInvalidoException(ParametroInvalidoException ex, WebRequest request) {
-        var status = HttpStatus.BAD_REQUEST;
-
-        var erro = new Problema();
-        erro.setStatus(status.value());
-        erro.setDataHora(LocalDateTime.now());
-        erro.setMensagem(ex.getMessage());
-
-        return handleExceptionInternal(ex, erro, new HttpHeaders(), status, request);
-    }
 
     @ExceptionHandler(MapperException.class)
     public ResponseEntity<Object> handleMapperException(MapperException ex, WebRequest request) {
@@ -79,9 +67,25 @@ public class EnderecoControllerAdvice extends ResponseEntityExceptionHandler {
         var problema = new Problema();
         problema.setStatus(status.value());
         problema.setDataHora(LocalDateTime.now());
-        problema.setMensagem("One or more fields are invalid. Fill in correctly and try again.");
+        problema.setMensagem(MensagemUtils.getMensagem(messageSource, "campos.invalidos"));
         problema.setCampos(erroCampos);
 
         return handleExceptionInternal(ex, problema, headers, status, request);
     }
+
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
+                                                                          HttpHeaders headers,
+                                                                          HttpStatus status,
+                                                                          WebRequest request) {
+        var nomeParametro = ex.getParameterName();
+
+        var problema = new Problema();
+        problema.setStatus(status.value());
+        problema.setDataHora(LocalDateTime.now());
+        problema.setMensagem(MensagemUtils.getMensagem(messageSource, "parametro.invalido", nomeParametro));
+
+        return handleExceptionInternal(ex, problema, headers, status, request);
+    }
+
 }
