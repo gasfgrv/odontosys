@@ -4,11 +4,10 @@ import br.com.gusta.odontosys.msendereco.data.models.dto.response.BuscarEndereco
 import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class EnderecoBuscarEnderecoResponseMapper extends GenericMapper<Endereco, BuscarEnderecoResponse> {
 
     private final ModelMapper mapper;

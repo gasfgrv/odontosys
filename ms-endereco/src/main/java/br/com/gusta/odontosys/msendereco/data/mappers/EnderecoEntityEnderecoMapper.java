@@ -5,7 +5,6 @@ import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.SourceGetter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,7 +20,6 @@ public class EnderecoEntityEnderecoMapper extends GenericMapper<EnderecoEntity, 
 
     private final ModelMapper mapper;
 
-    @Autowired
     public EnderecoEntityEnderecoMapper(ModelMapper mapper) {
         this.mapper = mapper;
         mapper.createTypeMap(Endereco.class, EnderecoEntity.class)

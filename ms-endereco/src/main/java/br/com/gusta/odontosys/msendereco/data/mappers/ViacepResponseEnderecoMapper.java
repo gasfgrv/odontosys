@@ -3,7 +3,6 @@ package br.com.gusta.odontosys.msendereco.data.mappers;
 import br.com.gusta.odontosys.msendereco.data.models.dto.ViacepResponse;
 import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,7 +10,6 @@ public class ViacepResponseEnderecoMapper extends GenericMapper<ViacepResponse, 
 
     private final ModelMapper mapper;
 
-    @Autowired
     public ViacepResponseEnderecoMapper(ModelMapper mapper) {
         this.mapper = mapper;
         mapper.createTypeMap(ViacepResponse.class, Endereco.class)
