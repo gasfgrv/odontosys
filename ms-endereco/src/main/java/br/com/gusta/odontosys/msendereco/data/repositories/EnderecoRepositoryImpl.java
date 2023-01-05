@@ -11,7 +11,6 @@ import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.repositories.EnderecoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class EnderecoRepositoryImpl implements EnderecoRepository {
 
     private final MessageSource messageSource;
@@ -32,6 +31,9 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     @Override
     @CacheEvict(value = "enderecoDatabase", allEntries = true)
     public Endereco salvarEndereco(Endereco endereco) {
+        var cepFormatado = formataCep(endereco.getCep());
+        endereco.setCep(cepFormatado);
+
         var entity = enderecoEnderecoEntityMapper.map(endereco);
         var enderecoSalvo = repository.save(entity);
         return enderecoEntityEnderecoMapper.map(enderecoSalvo);
@@ -51,7 +53,7 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     @Cacheable("enderecoDatabase")
     public Endereco consultarEndereco(String cep, int numero) {
         var enderecoId = new EnderecoId();
-        enderecoId.setCep(cep);
+        enderecoId.setCep(formataCep(cep));
         enderecoId.setNumero(numero);
 
         var enderecoEntity = repository.findById(enderecoId);
@@ -63,8 +65,16 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     @CacheEvict(value = "enderecoDatabase", allEntries = true)
     public void deletarEndereco(String cep, int numero) {
         var enderecoId = new EnderecoId();
-        enderecoId.setCep(cep);
+        enderecoId.setCep(formataCep(cep));
         enderecoId.setNumero(numero);
         repository.deleteById(enderecoId);
+    }
+
+    private String formataCep(String cep) {
+        if (cep.matches("\\d{5}-\\d{3}")) {
+            return cep.replace("-", "");
+        }
+
+        return cep;
     }
 }
