@@ -4,6 +4,7 @@ import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.repositories.EnderecoRepository;
 import br.com.gusta.odontosys.msendereco.utils.builder.EnderecoBuilder;
 import java.util.Locale;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +33,8 @@ class BuscarEnderecoTest {
     private MessageSource messageSource;
 
     @Test
-    void name(CapturedOutput output) {
+    @DisplayName("Buscar um endereco a partir do cep")
+    void buscarUmEnderecoAPartirDoCep(CapturedOutput output) {
         var cep = "01001-000";
         var mensagemLog = "Buscando %s em webservice externo".formatted(cep);
         var endereco = new EnderecoBuilder()
