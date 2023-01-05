@@ -3,16 +3,16 @@ package br.com.gusta.odontosys.msendereco.domain.usecases;
 import br.com.gusta.odontosys.msendereco.core.exceptions.EnderecoNotFoundException;
 import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
 import br.com.gusta.odontosys.msendereco.domain.repositories.EnderecoRepository;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class DeletarEnderecoExistente {
 
     private final EnderecoRepository enderecoRepository;
