@@ -51,35 +51,43 @@ class DeletarEnderecoExistenteTest {
                 .setUf("PB")
                 .build();
 
+        var codigoMensagem = "deletando.endereco";
+
+        var argumentos = new String[]{CEP, String.valueOf(NUMERO)};
+
+        var locale = Locale.getDefault();
+
         var mensagemLog = "Deletando o endereço com o CEP: %s e número: %s".formatted(CEP, NUMERO);
 
         given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(endereco);
 
-        given(messageSource.getMessage("deletando.endereco", new String[]{CEP, String.valueOf(NUMERO)}, Locale.getDefault()))
-                .willReturn(mensagemLog);
+        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemLog);
 
         doNothing().when(enderecoRepository).deletarEndereco(CEP, NUMERO);
 
-        assertThatCode(() -> deletarEnderecoExistente.deletarEndereco(CEP, NUMERO))
-                .doesNotThrowAnyException();
+        assertThatCode(() -> deletarEnderecoExistente.deletarEndereco(CEP, NUMERO)).doesNotThrowAnyException();
 
         assertThat(output.getOut()).contains(mensagemLog);
 
         verify(enderecoRepository, times(1)).deletarEndereco(CEP, NUMERO);
 
-        verify(messageSource, times(1))
-                .getMessage("deletando.endereco", new String[]{CEP, String.valueOf(NUMERO)}, Locale.getDefault());
+        verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
     }
 
     @Test
     @DisplayName("Lançar EnderecoNotFoundException quando o endereço não existe")
     void lancarEnderecoNotFoundExceptionQuandoOEnderecoNaoExiste() {
+        var codigoMensagem = "endereco.nao.existe";
+
+        var argumentos = new String[]{};
+
+        var locale = Locale.getDefault();
+
         var mensagemErro = "Endereço não existe na base de dados";
 
         given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(null);
 
-        given(messageSource.getMessage("endereco.nao.existe", new String[]{}, Locale.getDefault()))
-                .willReturn(mensagemErro);
+        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemErro);
 
         assertThatExceptionOfType(EnderecoNotFoundException.class)
                 .isThrownBy(() -> deletarEnderecoExistente.deletarEndereco(CEP, NUMERO))
@@ -87,8 +95,7 @@ class DeletarEnderecoExistenteTest {
 
         verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
 
-        verify(messageSource, times(1))
-                .getMessage("endereco.nao.existe", new String[]{}, Locale.getDefault());
+        verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
     }
 
 }

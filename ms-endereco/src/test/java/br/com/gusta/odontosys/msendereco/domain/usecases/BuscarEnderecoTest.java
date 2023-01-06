@@ -36,7 +36,7 @@ class BuscarEnderecoTest {
     @DisplayName("Buscar um endereco a partir do cep")
     void buscarUmEnderecoAPartirDoCep(CapturedOutput output) {
         var cep = "01001-000";
-        var mensagemLog = "Buscando %s em webservice externo".formatted(cep);
+
         var endereco = new EnderecoBuilder()
                 .setCep(cep)
                 .setLogradouro("Praça da Sé")
@@ -46,10 +46,17 @@ class BuscarEnderecoTest {
                 .setUf("SP")
                 .build();
 
+        var codigoMensagem = "buscando.webservice.externo";
+
+        var argumentos = new String[]{cep};
+
+        var locale = Locale.getDefault();
+
+        var mensagemLog = "Buscando %s em webservice externo".formatted(cep);
+
         given(enderecoRepository.buscarEndereco(cep)).willReturn(endereco);
 
-        given(messageSource.getMessage("buscando.webservice.externo", new String[]{cep}, Locale.getDefault()))
-                .willReturn(mensagemLog);
+        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemLog);
 
         assertThat(buscarEndereco.buscarEndereco(cep))
                 .isNotNull()
@@ -59,7 +66,6 @@ class BuscarEnderecoTest {
 
         verify(enderecoRepository, times(1)).buscarEndereco(cep);
 
-        verify(messageSource, times(1))
-                .getMessage("buscando.webservice.externo", new String[]{cep}, Locale.getDefault());
+        verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
     }
 }

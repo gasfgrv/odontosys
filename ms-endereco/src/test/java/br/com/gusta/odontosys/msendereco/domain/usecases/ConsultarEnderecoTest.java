@@ -51,12 +51,17 @@ class ConsultarEnderecoTest {
                 .setUf("RJ")
                 .build();
 
+        var codigoMensagem = "buscando.base";
+
+        var argumentos = new String[]{CEP};
+
+        var locale = Locale.getDefault();
+
         var mensagemLog = "Buscando %s na base de dados".formatted(CEP);
 
         given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(endereco);
 
-        given(messageSource.getMessage("buscando.base", new String[]{CEP}, Locale.getDefault()))
-                .willReturn(mensagemLog);
+        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemLog);
 
         assertThat(consultarEndereco.consultarEndereco(CEP, NUMERO))
                 .isNotNull()
@@ -66,19 +71,23 @@ class ConsultarEnderecoTest {
 
         verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
 
-        verify(messageSource, times(1))
-                .getMessage("buscando.base", new String[]{CEP}, Locale.getDefault());
+        verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
     }
 
     @Test
     @DisplayName("Lançar EnderecoNotFoundException quando não existe endereco")
     void LancaEnderecoNotFoundExceptionQuandoNaoExisteEndereco() {
+        var codigoMensagem = "endereco.nao.encontrado";
+
+        var argumentos = new String[]{};
+
+        var locale = Locale.getDefault();
+
         var mensagemErro = "Endereço não encontrado";
 
         given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(null);
 
-        given(messageSource.getMessage("endereco.nao.encontrado", new String[]{}, Locale.getDefault()))
-                .willReturn(mensagemErro);
+        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemErro);
 
         assertThatExceptionOfType(EnderecoNotFoundException.class)
                 .isThrownBy(() -> consultarEndereco.consultarEndereco(CEP, NUMERO))
@@ -86,8 +95,7 @@ class ConsultarEnderecoTest {
 
         verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
 
-        verify(messageSource, times(1))
-                .getMessage("endereco.nao.encontrado", new String[]{}, Locale.getDefault());
+        verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
     }
 
 }
