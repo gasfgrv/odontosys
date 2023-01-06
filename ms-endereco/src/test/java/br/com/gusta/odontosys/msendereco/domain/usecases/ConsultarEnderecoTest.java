@@ -25,6 +25,10 @@ import static org.mockito.Mockito.verify;
 @ExtendWith({SpringExtension.class, OutputCaptureExtension.class})
 class ConsultarEnderecoTest {
 
+    public static final String CEP = "25936-155";
+
+    public static final int NUMERO = 541;
+
     @InjectMocks
     private ConsultarEndereco consultarEndereco;
 
@@ -37,12 +41,9 @@ class ConsultarEnderecoTest {
     @Test
     @DisplayName("Consultar um endereço a partir do cep e do número")
     void consultarUmEnderecoAPartirDoCepEDoNumero(CapturedOutput output) {
-        var cep = "25936-155";
-        var numero = 541;
-
         var endereco = new EnderecoBuilder()
-                .setCep(cep)
-                .setNumero(numero)
+                .setCep(CEP)
+                .setNumero(NUMERO)
                 .setLogradouro("Alameda Edwirginha")
                 .setBairro("Jardim Nazareno")
                 .setComplemento("Vila Inhomirim")
@@ -50,42 +51,40 @@ class ConsultarEnderecoTest {
                 .setUf("RJ")
                 .build();
 
-        var mensagemLog = "Buscando %s na base de dados".formatted(cep);
+        var mensagemLog = "Buscando %s na base de dados".formatted(CEP);
 
-        given(enderecoRepository.consultarEndereco(cep, numero)).willReturn(endereco);
+        given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(endereco);
 
-        given(messageSource.getMessage("buscando.base", new String[]{cep}, Locale.getDefault()))
+        given(messageSource.getMessage("buscando.base", new String[]{CEP}, Locale.getDefault()))
                 .willReturn(mensagemLog);
 
-        assertThat(consultarEndereco.consultarEndereco(cep, numero))
+        assertThat(consultarEndereco.consultarEndereco(CEP, NUMERO))
                 .isNotNull()
                 .isInstanceOf(Endereco.class);
 
         assertThat(output.getOut()).contains(mensagemLog);
 
-        verify(enderecoRepository, times(1)).consultarEndereco(cep, numero);
+        verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
 
         verify(messageSource, times(1))
-                .getMessage("buscando.base", new String[]{cep}, Locale.getDefault());
+                .getMessage("buscando.base", new String[]{CEP}, Locale.getDefault());
     }
 
     @Test
     @DisplayName("Lançar EnderecoNotFoundException quando não existe endereco")
     void LancaEnderecoNotFoundExceptionQuandoNaoExisteEndereco() {
-        var cep = "25936-155";
-        var numero = 541;
         var mensagemErro = "Endereço não encontrado";
 
-        given(enderecoRepository.consultarEndereco(cep, numero)).willReturn(null);
+        given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(null);
 
         given(messageSource.getMessage("endereco.nao.encontrado", new String[]{}, Locale.getDefault()))
                 .willReturn(mensagemErro);
 
         assertThatExceptionOfType(EnderecoNotFoundException.class)
-                .isThrownBy(() -> consultarEndereco.consultarEndereco(cep, numero))
+                .isThrownBy(() -> consultarEndereco.consultarEndereco(CEP, NUMERO))
                 .withMessage(mensagemErro);
 
-        verify(enderecoRepository, times(1)).consultarEndereco(cep, numero);
+        verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
 
         verify(messageSource, times(1))
                 .getMessage("endereco.nao.encontrado", new String[]{}, Locale.getDefault());
