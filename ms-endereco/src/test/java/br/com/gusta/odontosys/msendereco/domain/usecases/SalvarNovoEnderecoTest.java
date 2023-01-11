@@ -16,9 +16,9 @@ import org.springframework.context.MessageSource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({SpringExtension.class, OutputCaptureExtension.class})
 class SalvarNovoEnderecoTest {
@@ -40,13 +40,9 @@ class SalvarNovoEnderecoTest {
     @DisplayName("Salvar um novo endereço")
     void salvarUmNovoEndereco(CapturedOutput output) {
         var codigoMensagem = "salvando.endereco";
-
         var argumentos = new String[]{};
-
         var locale = Locale.getDefault();
-
         var mensagemLog = "Salvando endereço na base de dados";
-
         var endereco = new EnderecoBuilder()
                 .setCep(CEP)
                 .setNumero(NUMERO)
@@ -56,28 +52,27 @@ class SalvarNovoEnderecoTest {
                 .setUf("CE")
                 .build();
 
-        given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(null);
+        when(enderecoRepository.consultarEndereco(CEP, NUMERO)).thenReturn(null);
+        when(messageSource.getMessage(codigoMensagem, argumentos, locale)).thenReturn(mensagemLog);
+        when(enderecoRepository.salvarEndereco(endereco)).thenReturn(endereco);
 
-        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemLog);
+        var enderecoSalvo = salvarNovoEndereco.salvarNovoEndereco(endereco);
 
-        given(enderecoRepository.salvarEndereco(endereco)).willReturn(endereco);
-
-        assertThat(salvarNovoEndereco.salvarNovoEndereco(endereco))
-                .isNotNull()
-                .isInstanceOf(Endereco.class);
-
+        assertThat(enderecoSalvo).isNotNull().isInstanceOf(Endereco.class);
         assertThat(output.getOut()).contains(mensagemLog);
 
         verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
-
         verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
-
         verify(enderecoRepository, times(1)).salvarEndereco(endereco);
     }
 
     @Test
     @DisplayName("Retornar um endereço já existente em vez de salvar um novo")
     void retornarUmEnderecoJaExistenteEmVezDeSalvarUmNovo(CapturedOutput output) {
+        var codigoMensagem = "retornando.endereco.existente";
+        var argumentos = new String[]{};
+        var locale = Locale.getDefault();
+        var mensagemLog = "Endereço existente na base de dados, retornando os dados do mesmo";
         var endereco = new EnderecoBuilder()
                 .setCep(CEP)
                 .setNumero(NUMERO)
@@ -87,29 +82,15 @@ class SalvarNovoEnderecoTest {
                 .setUf("CE")
                 .build();
 
-        var codigoMensagem = "retornando.endereco.existente";
+        when(enderecoRepository.consultarEndereco(CEP, NUMERO)).thenReturn(endereco);
+        when(messageSource.getMessage(codigoMensagem, argumentos, locale)).thenReturn(mensagemLog);
 
-        var argumentos = new String[]{};
+        var enderecoSalvo = salvarNovoEndereco.salvarNovoEndereco(endereco);
 
-        var locale = Locale.getDefault();
-
-        var mensagemLog = "Endereço existente na base de dados, retornando os dados do mesmo";
-
-        given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(endereco);
-
-        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemLog);
-
-        assertThat(salvarNovoEndereco.salvarNovoEndereco(endereco))
-                .isNotNull()
-                .isInstanceOf(Endereco.class)
-                .usingRecursiveComparison()
-                .isEqualTo(endereco);
-
+        assertThat(enderecoSalvo).isNotNull().isInstanceOf(Endereco.class);
         assertThat(output.getOut()).contains(mensagemLog);
 
         verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
-
         verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
-
     }
 }

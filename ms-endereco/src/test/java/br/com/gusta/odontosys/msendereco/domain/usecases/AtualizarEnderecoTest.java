@@ -18,9 +18,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith({SpringExtension.class, OutputCaptureExtension.class})
@@ -28,7 +28,7 @@ class AtualizarEnderecoTest {
 
     private static final String CEP = "69318-005";
 
-    private static int NUMERO = 414;
+    private static final int NUMERO = 414;
     public static final Endereco ENDERECO = new EnderecoBuilder()
             .setCep(CEP)
             .setNumero(NUMERO)
@@ -51,29 +51,21 @@ class AtualizarEnderecoTest {
     @DisplayName("Atualizar o endereço")
     void atualizarOEndereco(CapturedOutput output) {
         var codigoMensagem = "atualizando.endereco";
-
         var argumentos = new String[]{};
-
         var locale = Locale.getDefault();
-
         var mensagemLog = "Atualizando endereço na base de dados";
 
-        given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(ENDERECO);
+        when(enderecoRepository.consultarEndereco(CEP, NUMERO)).thenReturn(ENDERECO);
+        when(messageSource.getMessage(codigoMensagem, argumentos, locale)).thenReturn(mensagemLog);
+        when(enderecoRepository.salvarEndereco(ENDERECO)).thenReturn(ENDERECO);
 
-        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemLog);
+        var enderecoAtualizado = this.atualizarEndereco.atualizarEndereco(ENDERECO);
 
-        given(enderecoRepository.salvarEndereco(ENDERECO)).willReturn(ENDERECO);
-
-        assertThat(atualizarEndereco.atualizarEndereco(ENDERECO))
-                .isNotNull()
-                .isInstanceOf(Endereco.class);
-
+        assertThat(enderecoAtualizado).isNotNull().isInstanceOf(Endereco.class);
         assertThat(output.getOut()).contains(mensagemLog);
 
         verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
-
         verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
-
         verify(enderecoRepository, times(1)).salvarEndereco(ENDERECO);
     }
 
@@ -81,23 +73,18 @@ class AtualizarEnderecoTest {
     @DisplayName("Lançar EnderecoNotFoundException quando o endereço não existe")
     void lancarEnderecoNotFoundExceptionQuandoOEnderecoNaoExiste() {
         var codigoMensagem = "endereco.nao.existe";
-
         var argumentos = new String[]{};
-
         var locale = Locale.getDefault();
-
         var mensagemErro = "Endereço não existe na base de dados";
 
-        given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(null);
-
-        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemErro);
+        when(enderecoRepository.consultarEndereco(CEP, NUMERO)).thenReturn(null);
+        when(messageSource.getMessage(codigoMensagem, argumentos, locale)).thenReturn(mensagemErro);
 
         assertThatExceptionOfType(EnderecoNotFoundException.class)
                 .isThrownBy(() -> atualizarEndereco.atualizarEndereco(ENDERECO))
                 .withMessage(mensagemErro);
 
         verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
-
         verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
     }
 

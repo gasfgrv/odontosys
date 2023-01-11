@@ -19,9 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.doNothing;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({SpringExtension.class, OutputCaptureExtension.class})
 class DeletarEnderecoExistenteTest {
@@ -42,6 +42,10 @@ class DeletarEnderecoExistenteTest {
     @Test
     @DisplayName("Deletar endereço passando cep e numero")
     void deletarEnderecoPassandoCepENumero(CapturedOutput output) {
+        var codigoMensagem = "deletando.endereco";
+        var argumentos = new String[]{CEP, String.valueOf(NUMERO)};
+        var locale = Locale.getDefault();
+        var mensagemLog = "Deletando o endereço com o CEP: %s e número: %s".formatted(CEP, NUMERO);
         var endereco = new EnderecoBuilder()
                 .setCep(CEP)
                 .setNumero(NUMERO)
@@ -51,26 +55,14 @@ class DeletarEnderecoExistenteTest {
                 .setUf("PB")
                 .build();
 
-        var codigoMensagem = "deletando.endereco";
-
-        var argumentos = new String[]{CEP, String.valueOf(NUMERO)};
-
-        var locale = Locale.getDefault();
-
-        var mensagemLog = "Deletando o endereço com o CEP: %s e número: %s".formatted(CEP, NUMERO);
-
-        given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(endereco);
-
-        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemLog);
-
+        when(enderecoRepository.consultarEndereco(CEP, NUMERO)).thenReturn(endereco);
+        when(messageSource.getMessage(codigoMensagem, argumentos, locale)).thenReturn(mensagemLog);
         doNothing().when(enderecoRepository).deletarEndereco(CEP, NUMERO);
 
         assertThatCode(() -> deletarEnderecoExistente.deletarEndereco(CEP, NUMERO)).doesNotThrowAnyException();
-
         assertThat(output.getOut()).contains(mensagemLog);
 
         verify(enderecoRepository, times(1)).deletarEndereco(CEP, NUMERO);
-
         verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
     }
 
@@ -78,23 +70,18 @@ class DeletarEnderecoExistenteTest {
     @DisplayName("Lançar EnderecoNotFoundException quando o endereço não existe")
     void lancarEnderecoNotFoundExceptionQuandoOEnderecoNaoExiste() {
         var codigoMensagem = "endereco.nao.existe";
-
         var argumentos = new String[]{};
-
         var locale = Locale.getDefault();
-
         var mensagemErro = "Endereço não existe na base de dados";
 
-        given(enderecoRepository.consultarEndereco(CEP, NUMERO)).willReturn(null);
-
-        given(messageSource.getMessage(codigoMensagem, argumentos, locale)).willReturn(mensagemErro);
+        when(enderecoRepository.consultarEndereco(CEP, NUMERO)).thenReturn(null);
+        when(messageSource.getMessage(codigoMensagem, argumentos, locale)).thenReturn(mensagemErro);
 
         assertThatExceptionOfType(EnderecoNotFoundException.class)
                 .isThrownBy(() -> deletarEnderecoExistente.deletarEndereco(CEP, NUMERO))
                 .withMessage(mensagemErro);
 
         verify(enderecoRepository, times(1)).consultarEndereco(CEP, NUMERO);
-
         verify(messageSource, times(1)).getMessage(codigoMensagem, argumentos, locale);
     }
 
