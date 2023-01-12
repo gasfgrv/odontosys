@@ -3,9 +3,9 @@ package br.com.gusta.odontosys.msendereco.data.repositories;
 import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
 import br.com.gusta.odontosys.msendereco.data.datasources.CepClient;
 import br.com.gusta.odontosys.msendereco.data.datasources.JpaEnderecoRepository;
-import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
-import br.com.gusta.odontosys.msendereco.data.models.dto.ViacepResponse;
-import br.com.gusta.odontosys.msendereco.data.models.entity.EnderecoEntity;
+import br.com.gusta.odontosys.msendereco.data.mappers.EnderecoToEnderecoEntityMapper;
+import br.com.gusta.odontosys.msendereco.data.mappers.EnderecoEntityToEnderecoMapper;
+import br.com.gusta.odontosys.msendereco.data.mappers.ViacepResponseToEnderecoMapper;
 import br.com.gusta.odontosys.msendereco.data.models.entity.EnderecoId;
 import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.repositories.EnderecoRepository;
@@ -24,19 +24,22 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
     private final MessageSource messageSource;
     private final JpaEnderecoRepository repository;
     private final CepClient cepClient;
-    private final GenericMapper<EnderecoEntity, Endereco> enderecoEntityEnderecoMapper;
-    private final GenericMapper<Endereco, EnderecoEntity> enderecoEnderecoEntityMapper;
-    private final GenericMapper<ViacepResponse, Endereco> viacepResponseEnderecoMapper;
+    private final EnderecoEntityToEnderecoMapper enderecoEntityToEnderecoMapper;
+
+    private final EnderecoToEnderecoEntityMapper enderecoToEnderecoEntityMapper;
+
+    private final ViacepResponseToEnderecoMapper viacepResponseToEnderecoMapper;
 
     @Override
     @CacheEvict(value = "enderecoDatabase", allEntries = true)
     public Endereco salvarEndereco(Endereco endereco) {
-        var cepFormatado = formataCep(endereco.getCep());
-        endereco.setCep(cepFormatado);
+        endereco.setCep(formataCep(endereco.getCep()));
 
-        var entity = enderecoEnderecoEntityMapper.map(endereco);
+        var entity = enderecoToEnderecoEntityMapper.toEntity(endereco);
+
         var enderecoSalvo = repository.save(entity);
-        return enderecoEntityEnderecoMapper.map(enderecoSalvo);
+
+        return enderecoEntityToEnderecoMapper.toModel(enderecoSalvo);
     }
 
     @Override
@@ -46,7 +49,7 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
 
         var enderecoWs = cepClient.buscarEnderecoPorCep(cep);
 
-        return viacepResponseEnderecoMapper.map(enderecoWs);
+        return viacepResponseToEnderecoMapper.toModel(enderecoWs);
     }
 
     @Override
@@ -58,7 +61,7 @@ public class EnderecoRepositoryImpl implements EnderecoRepository {
 
         var enderecoEntity = repository.findById(enderecoId);
 
-        return enderecoEntity.map(enderecoEntityEnderecoMapper::map).orElse(null);
+        return enderecoEntity.map(enderecoEntityToEnderecoMapper::toModel).orElse(null);
     }
 
     @Override

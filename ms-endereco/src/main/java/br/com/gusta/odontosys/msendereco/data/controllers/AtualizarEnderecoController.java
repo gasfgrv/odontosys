@@ -1,10 +1,10 @@
 package br.com.gusta.odontosys.msendereco.data.controllers;
 
 import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
-import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
+import br.com.gusta.odontosys.msendereco.data.mappers.EnderecoToEnderecoResponseMapper;
+import br.com.gusta.odontosys.msendereco.data.mappers.NovoEnderecoFormToEnderecoMapper;
 import br.com.gusta.odontosys.msendereco.data.models.dto.input.NovoEnderecoForm;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.EnderecoResponse;
-import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.usecases.AtualizarEndereco;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,18 +25,18 @@ public class AtualizarEnderecoController {
 
     private final MessageSource messageSource;
     private final AtualizarEndereco atualizarEndereco;
-    private final GenericMapper<Endereco, EnderecoResponse> enderecoEnderecoResponseMapper;
-    private final GenericMapper<NovoEnderecoForm, Endereco> novoEnderecoFormEnderecoMapper;
+    private final EnderecoToEnderecoResponseMapper enderecoToEnderecoResponseMapper;
+    private final NovoEnderecoFormToEnderecoMapper novoEnderecoFormToEnderecoMapper;
 
     @PutMapping
     @Transactional
     public ResponseEntity<EnderecoResponse> atualizarEndereco(@RequestBody @Valid NovoEnderecoForm form) {
-        var endereco = novoEnderecoFormEnderecoMapper.map(form);
+        var endereco = novoEnderecoFormToEnderecoMapper.toModel(form);
         var enderecoAtualizado = atualizarEndereco.atualizarEndereco(endereco);
 
         log.info(MensagemUtils.getMensagem(messageSource, "remocao.sucesso"));
 
-        var response = enderecoEnderecoResponseMapper.map(enderecoAtualizado);
+        var response = enderecoToEnderecoResponseMapper.toResponse(enderecoAtualizado);
         return ResponseEntity.ok(response);
     }
 

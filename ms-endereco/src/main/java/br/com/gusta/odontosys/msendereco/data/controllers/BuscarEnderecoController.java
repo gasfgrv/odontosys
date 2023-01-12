@@ -1,9 +1,8 @@
 package br.com.gusta.odontosys.msendereco.data.controllers;
 
 import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
-import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
+import br.com.gusta.odontosys.msendereco.data.mappers.EnderecoToBuscarEnderecoResponseMapper;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.BuscarEnderecoResponse;
-import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.usecases.BuscarEndereco;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +21,12 @@ public class BuscarEnderecoController {
 
     private final MessageSource messageSource;
     private final BuscarEndereco buscarEndereco;
-    private final GenericMapper<Endereco, BuscarEnderecoResponse> enderecoBuscarEnderecoResponseMapper;
+    private final EnderecoToBuscarEnderecoResponseMapper enderecoToBuscarEnderecoResponseMapper;
 
     @GetMapping
     public ResponseEntity<BuscarEnderecoResponse> buscarEndereco(@RequestParam String cep) {
         var endereco = buscarEndereco.buscarEndereco(cep);
-        var response = enderecoBuscarEnderecoResponseMapper.map(endereco);
+        var response = enderecoToBuscarEnderecoResponseMapper.toResponse(endereco);
 
         log.info(MensagemUtils.getMensagem(messageSource, "busca.sucesso"));
 

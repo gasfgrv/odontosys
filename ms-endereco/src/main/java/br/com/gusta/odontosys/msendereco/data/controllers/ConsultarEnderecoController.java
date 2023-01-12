@@ -1,9 +1,8 @@
 package br.com.gusta.odontosys.msendereco.data.controllers;
 
 import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
-import br.com.gusta.odontosys.msendereco.data.mappers.GenericMapper;
+import br.com.gusta.odontosys.msendereco.data.mappers.EnderecoToEnderecoResponseMapper;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.EnderecoResponse;
-import br.com.gusta.odontosys.msendereco.domain.entities.Endereco;
 import br.com.gusta.odontosys.msendereco.domain.usecases.ConsultarEndereco;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +21,13 @@ public class ConsultarEnderecoController {
 
     private final ConsultarEndereco consultarEndereco;
     private final MessageSource messageSource;
-    private final GenericMapper<Endereco, EnderecoResponse> enderecoEnderecoResponseMapper;
+    private final EnderecoToEnderecoResponseMapper enderecoToEnderecoResponseMapper;
 
     @GetMapping
     public ResponseEntity<EnderecoResponse> consultarEndereco(@RequestParam String cep,
                                                               @RequestParam String numero) {
         var endereco = consultarEndereco.consultarEndereco(cep, Integer.parseInt(numero));
-        var response = enderecoEnderecoResponseMapper.map(endereco);
+        var response = enderecoToEnderecoResponseMapper.toResponse(endereco);
 
         log.info(MensagemUtils.getMensagem(messageSource, "consulta.sucesso"));
 
