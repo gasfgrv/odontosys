@@ -34,7 +34,7 @@ public class AtualizarEnderecoController {
         var endereco = novoEnderecoFormToEnderecoMapper.toModel(form);
         var enderecoAtualizado = atualizarEndereco.atualizarEndereco(endereco);
 
-        log.info(MensagemUtils.getMensagem(messageSource, "remocao.sucesso"));
+        log.info(MensagemUtils.getMensagem(messageSource, "atualizacao.sucesso"));
 
         var response = enderecoToEnderecoResponseMapper.toResponse(enderecoAtualizado);
         return ResponseEntity.ok(response);
