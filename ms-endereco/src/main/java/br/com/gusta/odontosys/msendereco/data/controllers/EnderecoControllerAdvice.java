@@ -4,8 +4,8 @@ import br.com.gusta.odontosys.msendereco.core.exceptions.EnderecoNotFoundExcepti
 import br.com.gusta.odontosys.msendereco.core.utils.MensagemUtils;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.error.Campo;
 import br.com.gusta.odontosys.msendereco.data.models.dto.response.error.Problema;
+import feign.FeignException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
@@ -25,16 +25,36 @@ public class EnderecoControllerAdvice extends ResponseEntityExceptionHandler {
 
     private final MessageSource messageSource;
 
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<Object> handleFeignException(FeignException ex, WebRequest request) {
+        var status = HttpStatus.BAD_REQUEST;
+
+        var uri = montarUri(request);
+
+        var problema = Problema.builder()
+                .status(status.value())
+                .uri(uri)
+                .mensagem(MensagemUtils.getMensagem(messageSource, "erro.buscando.web.service"))
+                .dataHora(LocalDateTime.now())
+                .build();
+
+        return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);
+    }
+
     @ExceptionHandler(EnderecoNotFoundException.class)
     public ResponseEntity<Object> handleEnderecoNotFoundException(EnderecoNotFoundException ex, WebRequest request) {
         var status = HttpStatus.NOT_FOUND;
 
-        var erro = new Problema();
-        erro.setStatus(status.value());
-        erro.setDataHora(LocalDateTime.now());
-        erro.setMensagem(ex.getMessage());
+        var uri = montarUri(request);
 
-        return handleExceptionInternal(ex, erro, new HttpHeaders(), status, request);
+        var problema = Problema.builder()
+                .status(status.value())
+                .uri(uri)
+                .mensagem(ex.getMessage())
+                .dataHora(LocalDateTime.now())
+                .build();
+
+        return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);
     }
 
     @Override
@@ -42,20 +62,20 @@ public class EnderecoControllerAdvice extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatus status,
                                                                   WebRequest request) {
+        var erroCampos = ex.getBindingResult().getAllErrors()
+                .stream().map(erro -> {
+                    var nomeCampo = ((FieldError) erro).getField();
+                    var mensagemErro = MensagemUtils.getMensagem(messageSource, erro);
+                    return new Campo(nomeCampo, mensagemErro);
+                }).toList();
 
-        var erroCampos = new ArrayList<Campo>();
-
-        ex.getBindingResult().getAllErrors().forEach(erro -> {
-            var nomeCampo = ((FieldError) erro).getField();
-            var mensagemErro = MensagemUtils.getMensagem(messageSource, erro);
-            erroCampos.add(new Campo(nomeCampo, mensagemErro));
-        });
-
-        var problema = new Problema();
-        problema.setStatus(status.value());
-        problema.setDataHora(LocalDateTime.now());
-        problema.setMensagem(MensagemUtils.getMensagem(messageSource, "campos.invalidos"));
-        problema.setCampos(erroCampos);
+        var problema = Problema.builder()
+                .status(status.value())
+                .uri(request.getDescription(false).substring(4))
+                .dataHora(LocalDateTime.now())
+                .mensagem(MensagemUtils.getMensagem(messageSource, "campos.invalidos"))
+                .campos(erroCampos)
+                .build();
 
         return handleExceptionInternal(ex, problema, headers, status, request);
     }
@@ -65,14 +85,30 @@ public class EnderecoControllerAdvice extends ResponseEntityExceptionHandler {
                                                                           HttpHeaders headers,
                                                                           HttpStatus status,
                                                                           WebRequest request) {
-        var nomeParametro = ex.getParameterName();
+        var parametroEmBranco = ex.getParameterName();
 
-        var problema = new Problema();
-        problema.setStatus(status.value());
-        problema.setDataHora(LocalDateTime.now());
-        problema.setMensagem(MensagemUtils.getMensagem(messageSource, "parametro.invalido", nomeParametro));
+        var uri = montarUri(request);
+
+        var problema = Problema.builder()
+                .status(status.value())
+                .uri(uri)
+                .dataHora(LocalDateTime.now())
+                .mensagem(MensagemUtils.getMensagem(messageSource, "parametro.invalido", parametroEmBranco))
+                .build();
 
         return handleExceptionInternal(ex, problema, headers, status, request);
+    }
+
+    private String montarUri(WebRequest request) {
+        var parametros = new StringBuilder();
+
+        request.getParameterMap().forEach(
+                (parametro, valor) -> parametros.append("&").append("%s=%s".formatted(parametro, valor[0]))
+        );
+
+        return "%s?%s"
+                .formatted(request.getDescription(false).substring(4), parametros.toString())
+                .replaceFirst("&", "");
     }
 
 }
